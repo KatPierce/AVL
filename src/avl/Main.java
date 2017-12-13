@@ -15,7 +15,18 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        AvlTree<Integer, String> tree = new AvlTree();
+       
+        tree.add(7, "c");
+         tree.add(4, "a");
+        tree.add(3, "b");
+        tree.add(2, "c");
+        tree.add(5, "c");
+        tree.add(5, "g");
+        int a = tree.size();
+        System.out.println(tree.size());
+//        tree.remove(7);
+//        tree.print2();
     }
     
 }

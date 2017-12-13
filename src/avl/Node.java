@@ -13,11 +13,11 @@ public class Node<T1, T2> {
     Data<T1,T2> data;
     Node left;
     Node right;
-    int height;
+    int height;    
 
     public Node(Data data, int height) {
            this.data = data;
-           this.height = height;
+           this.height = height;          
     }
     
     
