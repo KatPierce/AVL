@@ -170,7 +170,7 @@ public class AvlTree<T1 extends Comparable<T1>,T2> implements Map<T1, T2> {
         return node;
     }
     
-
+//////
    
   
     @Override
@@ -192,7 +192,13 @@ public class AvlTree<T1 extends Comparable<T1>,T2> implements Map<T1, T2> {
 
     @Override
     public boolean containsValue(Object value) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (isEmpty()) 
+            return false;
+        Set<T2> set = (Set)values();
+        if (set.contains(value))
+            return true;
+        return false;
+        
     }
 
     @Override
@@ -213,7 +219,12 @@ public class AvlTree<T1 extends Comparable<T1>,T2> implements Map<T1, T2> {
 
     @Override
     public T2 remove(Object key) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (containsKey(key)) {
+           T2 result = find((T1)key);            
+           remove(key);
+           return result;
+        }        
+        return null; 
     }
 
     @Override
@@ -228,37 +239,46 @@ public class AvlTree<T1 extends Comparable<T1>,T2> implements Map<T1, T2> {
 
     @Override
     public Set<T1> keySet() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Set <T1> result = null;
+       Iterator it = iterator();
+       while (it.hasNext()) {
+          Node<T1, T2> current = (Node)it.next();
+          result.add(current.data.getKey());          
+       }
+       return result;
     }
 
     @Override
     public Collection<T2> values() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+       Set <T2> result = null;
+       Iterator it = iterator();
+       while (it.hasNext()) {
+          Node<T1, T2> current = (Node)it.next();
+          result.add(current.data.getValue());          
+       }
+       return result;
     }
 
     @Override
     public Set<Entry<T1, T2>> entrySet() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+       Set <Entry<T1,T2>> result = null;
+       Iterator it = iterator();
+       while (it.hasNext()) {
+          Node<T1, T2> current = (Node)it.next();
+          result.add(current.data);          
+       }
+       return result;
     }
     
-    //iterator 
-//    public class BinaryTreeIterator implements Iterator<Node<T1, T2>> {
-//
-//        @Override
-//        public boolean hasNext() {
-//            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//        }
-//
-//        @Override
-//        public Node<T1, T2> next() {
-//            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//        }
+//    //iterator 
+//    public class TreeIterator implements Iterator<Node<T1, T2>> {
 //        
-//        private Node<T1, T2> findNext( Node<T1, T2> node) {
-//            
-//        }
+//    }
 //
 //       
+//    
+//    public Iterator<Node<T1,T2>> iterator() {
+//        return new TreeIterator();
 //    }
     
 

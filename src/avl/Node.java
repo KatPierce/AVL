@@ -19,6 +19,12 @@ public class Node<T1, T2> {
            this.data = data;
            this.height = height;          
     }
+
+    @Override
+    public String toString() {
+        return data + "";
+    }
     
     
+   
 }
