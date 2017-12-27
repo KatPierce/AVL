@@ -47,9 +47,11 @@ public class AvlTree<T1 extends Comparable<T1>, T2> implements Map<T1, T2> {
         return node;
     }
 
-    public void add(T1 key, T2 value) {
+        public boolean add(T1 key, T2 value) {
         Data<T1, T2> data = new Data(key, value);
         root = add(data, root);
+        return true;
+        
     }
 
     private Node<T1, T2> add(Data<T1, T2> data, Node<T1, T2> node) {
@@ -86,12 +88,7 @@ public class AvlTree<T1 extends Comparable<T1>, T2> implements Map<T1, T2> {
         } else {
             result = current.data.getValue();
         }
-        if (result == null) {
-            return null;
-        } else {
             return result;
-        }
-
     }
 
     public void remove(T1 key) {
@@ -215,7 +212,7 @@ public class AvlTree<T1 extends Comparable<T1>, T2> implements Map<T1, T2> {
     public T2 remove(Object key) {
         if (find((T1) key) != null) {
             T2 result = find((T1) key);
-            remove(key);
+            remove((T1) key);
             return result;
         }
         return null;
@@ -234,19 +231,19 @@ public class AvlTree<T1 extends Comparable<T1>, T2> implements Map<T1, T2> {
     }
 
     @Override
-    public Set<T1> keySet() {
-        Set<T1> result = null;
+    public Set<T1> keySet() {  
+        Set<T1> result = new TreeSet();
         Iterator it = iterator();
-        while (it.hasNext()) {
-            Node<T1, T2> current = (Node) it.next();
-            result.add(current.data.getKey());
+        while (it.hasNext()) {           
+            Node<T1, T2> current = (Node) it.next();            
+            result.add(current.data.getKey());            
         }
         return result;
     }
 
     @Override
     public Collection<T2> values() {
-        Set<T2> result = null;
+        Collection<T2> result = new ArrayList<T2>();
         Iterator it = iterator();
         while (it.hasNext()) {
             Node<T1, T2> current = (Node) it.next();
@@ -255,9 +252,11 @@ public class AvlTree<T1 extends Comparable<T1>, T2> implements Map<T1, T2> {
         return result;
     }
 
+    
+    
     @Override
     public Set<Entry<T1, T2>> entrySet() {
-        Set<Entry<T1, T2>> result = null;
+        Set<Entry<T1, T2>> result = new SetTree(new HashSet());
         Iterator it = iterator();
         while (it.hasNext()) {
             Node<T1, T2> current = (Node) it.next();
@@ -265,7 +264,48 @@ public class AvlTree<T1 extends Comparable<T1>, T2> implements Map<T1, T2> {
         }
         return result;
     }
+    
+// delegate
+    
+    class SetTree extends AbstractSet<Entry<T1, T2>> {
+        
+        private Set<Entry<T1, T2>> delegate;
+        
+        public SetTree(Set<Entry<T1, T2>> delegate) {
+            this.delegate = delegate;
+        }
+        
+        @Override
+        public boolean add(Entry<T1, T2> t) {
+            return AvlTree.this.add(t.getKey(), t.getValue()) && delegate.add(t);
+        }
 
+        public boolean remove(Object o) {
+            Entry<T1, T2> result = null;
+            for (Entry<T1, T2> t: this)
+                if (t.getKey() == (T1) o){
+                    result = t;
+                    break;
+                }
+            return delegate.remove(result)&&(null!=AvlTree.this.remove(o));
+        }
+
+        public Iterator<Entry<T1, T2>> iterator() {
+            return delegate.iterator();
+        }
+
+        @Override
+        public int size() {
+            return delegate.size();
+        }
+
+        @Override
+        public String toString() {
+            return delegate.toString();
+        }
+    }
+    
+    
     //iterator 
     public class TreeIterator implements Iterator<Node<T1, T2>> {
 

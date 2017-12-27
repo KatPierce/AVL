@@ -8,7 +8,8 @@ package avl;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
+import java.util.*;
+import java.util.Map.Entry;
 /**
  *
  * @author Eugenia
@@ -27,14 +28,26 @@ public class Main {
         tree.add(3, "c");
         tree.add(5, "c");
         tree.add(9, "g");
+        
+     //   System.out.println( tree.find(10));
+//        tree.remove(90);
+//        System.out.println( tree);
+        
 //        int a = tree.size();
 //        System.out.println(tree.size());
 //        tree.remove(7);
 //        tree.print2();
-        Iterator it = tree.iterator();
-        while (it.hasNext()) {
-            System.out.println(it.next());
-        }
+        //Iterator it = tree.iterator();
+        Set<Entry<Integer, String>> lalala = tree.entrySet();
+        System.out.println(lalala);
+        lalala.remove(7);
+        lalala.add(new Data (10, "kkkk"));
+        System.out.println(lalala);
+        System.out.println(tree.values());
+        
+//        while (it.hasNext()) {
+//            System.out.println(it.next());
+//        }
 
     }
 
