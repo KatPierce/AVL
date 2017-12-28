@@ -47,11 +47,12 @@ public class AvlTree<T1 extends Comparable<T1>, T2> implements Map<T1, T2> {
         return node;
     }
 
-        public boolean add(T1 key, T2 value) {
+    public boolean add(T1 key, T2 value) {
         Data<T1, T2> data = new Data(key, value);
         root = add(data, root);
+        updatedelegate();
         return true;
-        
+
     }
 
     private Node<T1, T2> add(Data<T1, T2> data, Node<T1, T2> node) {
@@ -74,12 +75,11 @@ public class AvlTree<T1 extends Comparable<T1>, T2> implements Map<T1, T2> {
     }
 
     public T2 find(T1 key) {
-        T2 result = find(root, key);
-        return result;
+        return find(root, key);        
     }
 
     private T2 find(Node<T1, T2> current, T1 key) {
-        T2 result = null;
+        T2 result;
         int comparison = key.compareTo(current.data.getKey());
         if (comparison > 0) {
             result = (T2) find(current.right, key);
@@ -88,11 +88,12 @@ public class AvlTree<T1 extends Comparable<T1>, T2> implements Map<T1, T2> {
         } else {
             result = current.data.getValue();
         }
-            return result;
+        return result;
     }
 
     public void remove(T1 key) {
         root = remove(key, root);
+        size--;
     }
 
     private Node remove(T1 key, Node<T1, T2> node) {
@@ -123,7 +124,7 @@ public class AvlTree<T1 extends Comparable<T1>, T2> implements Map<T1, T2> {
 
     private Node maxInSubtree(Node<T1, T2> node) {
         if (node == null) {
-            return node;
+            return null;
         }
         while (node.right != null) {
             node = node.right;
@@ -173,10 +174,8 @@ public class AvlTree<T1 extends Comparable<T1>, T2> implements Map<T1, T2> {
 
     @Override
     public boolean containsKey(Object key) {
-        if ((isEmpty() || find((T1) key) == null)) {
-            return false;
-        }
-        return true;
+        return (!isEmpty() && find((T1) key) != null);
+
     }
 
     @Override
@@ -184,11 +183,8 @@ public class AvlTree<T1 extends Comparable<T1>, T2> implements Map<T1, T2> {
         if (isEmpty()) {
             return false;
         }
-        Set<T2> set = (Set) values();
-        if (set.contains(value)) {
-            return true;
-        }
-        return false;
+        ArrayList<T2> mas = (ArrayList) values();
+        return mas.contains(value);
 
     }
 
@@ -202,9 +198,11 @@ public class AvlTree<T1 extends Comparable<T1>, T2> implements Map<T1, T2> {
         if (find(key) != null) {
             T2 result = find(key);
             add(key, value);
+            updatedelegate();
             return result;
         }
         add(key, value);
+        updatedelegate();
         return null;
     }
 
@@ -213,8 +211,10 @@ public class AvlTree<T1 extends Comparable<T1>, T2> implements Map<T1, T2> {
         if (find((T1) key) != null) {
             T2 result = find((T1) key);
             remove((T1) key);
+            updatedelegate();
             return result;
         }
+        updatedelegate();
         return null;
     }
 
@@ -223,20 +223,22 @@ public class AvlTree<T1 extends Comparable<T1>, T2> implements Map<T1, T2> {
         for (Map.Entry entry : m.entrySet()) {
             put((T1) entry.getKey(), (T2) entry.getValue());
         }
+        updatedelegate();
     }
 
     @Override
     public void clear() {
         root = null;
+        updatedelegate();
     }
 
     @Override
-    public Set<T1> keySet() {  
+    public Set<T1> keySet() {
         Set<T1> result = new TreeSet();
         Iterator it = iterator();
-        while (it.hasNext()) {           
-            Node<T1, T2> current = (Node) it.next();            
-            result.add(current.data.getKey());            
+        while (it.hasNext()) {
+            Node<T1, T2> current = (Node) it.next();
+            result.add(current.data.getKey());
         }
         return result;
     }
@@ -252,42 +254,50 @@ public class AvlTree<T1 extends Comparable<T1>, T2> implements Map<T1, T2> {
         return result;
     }
 
-    
-    
     @Override
     public Set<Entry<T1, T2>> entrySet() {
-        Set<Entry<T1, T2>> result = new SetTree(new HashSet());
+        updatedelegate();
+        return delegate;
+    }
+
+    private SetTree<Entry<T1, T2>> delegate = new SetTree(new HashSet<>());
+
+    private void updatedelegate() {
+        delegate.clear();
         Iterator it = iterator();
         while (it.hasNext()) {
-            Node<T1, T2> current = (Node) it.next();
-            result.add(current.data);
+            Node current = (Node) it.next();
+            delegate.add2(current.data);
         }
-        return result;
     }
-    
+
 // delegate
-    
-    class SetTree extends AbstractSet<Entry<T1, T2>> {
-        
+    private class SetTree<T3> extends AbstractSet<Entry<T1, T2>> {
+
         private Set<Entry<T1, T2>> delegate;
-        
-        public SetTree(Set<Entry<T1, T2>> delegate) {
-            this.delegate = delegate;
+
+        public SetTree(Set<T3> delegate) {
+            this.delegate = (Set<Entry<T1, T2>>) delegate;
         }
-        
+
         @Override
         public boolean add(Entry<T1, T2> t) {
             return AvlTree.this.add(t.getKey(), t.getValue()) && delegate.add(t);
         }
 
+        public void add2(Entry<T1, T2> t) {
+            delegate.add(t);
+        }
+
         public boolean remove(Object o) {
             Entry<T1, T2> result = null;
-            for (Entry<T1, T2> t: this)
-                if (t.getKey() == (T1) o){
+            for (Entry<T1, T2> t : this) {
+                if (t.getKey() == o) {
                     result = t;
                     break;
                 }
-            return delegate.remove(result)&&(null!=AvlTree.this.remove(o));
+            }
+            return delegate.remove(result) && (null != AvlTree.this.remove(o));
         }
 
         public Iterator<Entry<T1, T2>> iterator() {
@@ -304,15 +314,14 @@ public class AvlTree<T1 extends Comparable<T1>, T2> implements Map<T1, T2> {
             return delegate.toString();
         }
     }
-    
-    
+
     //iterator 
     public class TreeIterator implements Iterator<Node<T1, T2>> {
 
         ArrayDeque<Node<T1, T2>> deque;
 
         public TreeIterator(Node<T1, T2> root) {
-            deque = new ArrayDeque<Node<T1, T2>>();
+            deque = new ArrayDeque<>();
             while (root != null) {
                 deque.push(root);
                 root = root.left;
@@ -327,7 +336,6 @@ public class AvlTree<T1 extends Comparable<T1>, T2> implements Map<T1, T2> {
         @Override
         public Node<T1, T2> next() {
             Node<T1, T2> result = deque.pop();
-
             if (result.right != null) {
                 Node<T1, T2> node = result.right;
                 while (node != null) {
@@ -344,4 +352,61 @@ public class AvlTree<T1 extends Comparable<T1>, T2> implements Map<T1, T2> {
         return new TreeIterator(root);
     }
 
+    @Override
+    public String toString() {
+        List<List<Object>> str = toStr(root, 0, new ArrayList<>());
+        StringBuilder result = new StringBuilder();
+        int i = 5;
+        for (List<Object> aList : str) {
+            i--;
+            result.append(spaceAdd((int) Math.pow(2.0, (double) i - 1)));
+            for (Object bList : aList) {
+                result.append(bList).append(spaceAdd((int) Math.pow(2.0, (double) i) - 1));
+            }
+            result.append("\n");
+        }
+        return result.toString();
+    }
+
+    private String spaceAdd(int i) {
+        StringBuilder result = new StringBuilder();
+        for (; i > 0; i--) {
+            result.append(" ");
+        }
+        return result.toString();
+    }
+
+    private void addNull(int depth, List<List<Object>> list) {
+        if (depth >= 7) {
+            return;
+        }
+        if (list.size() <= depth) {
+            list.add(new ArrayList<>());
+        }
+        list.get(depth).add(" ");
+        addNull(depth + 1, list);
+        addNull(depth + 1, list);
+    }
+
+    public List<List<Object>> toStr(Node<T1, T2> root, int depth, List<List<Object>> list) {
+        if (depth >= 5) {
+            return list;
+        }
+        if (list.size() <= depth) {
+            list.add(new ArrayList<>());
+        }
+        if (root == null) {
+            list.get(depth).add(" ");
+            addNull(depth + 1, list);
+            addNull(depth + 1, list);
+            return list;
+        }
+        if (list.size() <= depth) {
+            list.add(new ArrayList<>());
+        }
+        list.get(depth).add(root.data.getKey());
+        toStr(root.left, depth + 1, list);
+        toStr(root.right, depth + 1, list);
+        return list;
+    }
 }

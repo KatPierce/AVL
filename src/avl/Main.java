@@ -40,9 +40,17 @@ public class Main {
         //Iterator it = tree.iterator();
         Set<Entry<Integer, String>> lalala = tree.entrySet();
         System.out.println(lalala);
+         System.out.println(tree.size());
         lalala.remove(7);
+         System.out.println(tree.size());
         lalala.add(new Data (10, "kkkk"));
         System.out.println(lalala);
+        tree.add(8, "th");
+        System.out.println(tree.size());
+        tree.remove(9);
+        System.out.println(tree.size());
+        System.out.println(tree);
+        System.out.println(tree.entrySet());
         System.out.println(tree.values());
         
 //        while (it.hasNext()) {
